@@ -1,0 +1,114 @@
+# Definición de tipos escalares
+scalar DateTime
+
+# Enums
+enum RequisitionStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum CandidateStatus {
+  REGISTERED
+  IN_EVALUATION
+  INTERVIEWED
+  SELECTED
+  REJECTED
+}
+
+enum VacancyStatus {
+  DRAFT
+  PUBLISHED
+  CLOSED
+}
+
+enum PublicationChannel {
+  INTRANET
+  EXTERNAL_PORTALS
+  BOTH
+}
+
+# Tipos de entrada
+input RequisitionInput {
+  position: String!
+  department: String!
+  salary: Float!
+  requirements: [String!]!
+  functions: [String!]!
+}
+
+input CandidateInput {
+  name: String!
+  email: String!
+  vacancyId: ID!
+  resume: String!
+}
+
+input InterviewInput {
+  candidateId: ID!
+  interviewerId: ID!
+  scheduledDate: DateTime!
+  type: String!
+}
+
+# Tipos principales
+type Requisition {
+  id: ID!
+  position: String!
+  department: String!
+  status: RequisitionStatus!
+  requirements: [String!]!
+  functions: [String!]!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type Vacancy {
+  id: ID!
+  requisition: Requisition!
+  publicationChannels: [PublicationChannel!]!
+  status: VacancyStatus!
+  candidates: [Candidate!]!
+  closingDate: DateTime
+}
+
+type Candidate {
+  id: ID!
+  name: String!
+  email: String!
+  status: CandidateStatus!
+  evaluations: [Evaluation!]!
+  interviews: [Interview!]!
+}
+
+type Evaluation {
+  id: ID!
+  candidateId: ID!
+  type: String!
+  score: Float!
+  comments: String
+  date: DateTime!
+}
+
+type Interview {
+  id: ID!
+  candidateId: ID!
+  interviewerId: ID!
+  scheduledDate: DateTime!
+  status: String!
+  feedback: String
+}
+
+# Queries y Mutations
+type Query {
+  requisition(id: ID!): Requisition
+  vacancies(status: VacancyStatus): [Vacancy!]!
+  candidates(vacancyId: ID!): [Candidate!]!
+}
+
+type Mutation {
+  createRequisition(input: RequisitionInput!): Requisition!
+  publishVacancy(requisitionId: ID!, channels: [PublicationChannel!]!): Vacancy!
+  registerCandidate(input: CandidateInput!): Candidate!
+  scheduleInterview(input: InterviewInput!): Interview!
+} 
